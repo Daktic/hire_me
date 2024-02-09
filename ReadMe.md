@@ -2,6 +2,13 @@
 This project should hopefully highlight my ability to work in Rust 
 and turn around a project in an unfamiliar time in a relatively short amount of time.
 
+### Base Architecture
+![img.png](md_files/img.png)
+The User will interact with the Binary, which will use the lib to interact with the triple-store.
+
+#### UML
+![img_1.png](md_files/img_1.png)
+
 ## Goals
  -[ ] Set up mock triple-store DB to house RDF data
  -[ ] Provide utility to upload RDF data
