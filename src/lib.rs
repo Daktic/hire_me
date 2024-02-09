@@ -7,12 +7,12 @@ struct Triple {
     object: String,
 }
 
-struct TripleStore {
+pub(crate) struct TripleStore {
     triples: HashSet<Triple>,
 }
 
 impl TripleStore {
-    fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             triples: HashSet::new(),
         }
