@@ -35,6 +35,9 @@ fn main() {
                     println!("Not found");
                 }
             }
+            command @ ["get", ..] if command.len() < 4 || command.len() > 4 => {
+                println!("Invalid number or arguments. 'get' Expected 3, got {}", command.len() - 1);
+            }
             _ => {
                 println!("Invalid command");
             }
