@@ -21,6 +21,13 @@ fn main() {
 
         // split the input into words for further processing
         match input.split_whitespace().collect::<Vec<_>>().as_slice() {
+            ["help"] => {
+                println!("Commands:");
+                println!("  add <subject> <predicate> <object>");
+                println!("  get <subject> <predicate> <object>");
+                println!("  query <raw query string>");
+                println!("  exit -> exit the program");
+            }
             ["add", subject, predicate, object] => {
                 triple_store.add(lib::Triple {
                     subject: subject.to_string(),
@@ -37,6 +44,10 @@ fn main() {
             }
             command @ ["get", ..] if command.len() < 4 || command.len() > 4 => {
                 println!("Invalid number or arguments. 'get' Expected 3, got {}", command.len() - 1);
+            }
+            command @ ["query", ..] => {
+                let query = command[1..].join(" ");
+                triple_store.query(&query);
             }
             _ => {
                 println!("Invalid command");
