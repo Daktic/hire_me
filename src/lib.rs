@@ -32,7 +32,9 @@ impl SelectQuery {
                 }
                 _ => {
                     if in_where_clause {
-                        where_clause.push(word.to_string());
+                        if word != &"{" && word != &"}" {
+                            where_clause.push(word.to_string());
+                        }
                     } else if word.starts_with("?") {
                         variables.push(word.to_string());
                     }
@@ -170,7 +172,7 @@ mod tests {
         });
 
         assert_eq!(
-            store.query("SELECT ?predicate ?object WHERE brown_dog"),
+            store.query("SELECT ?predicate ?object WHERE { brown_dog }"),
             vec![&Triple {
                 subject: "brown_dog".to_string(),
                 predicate: "hat_color".to_string(),
