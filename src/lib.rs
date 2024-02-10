@@ -11,6 +11,19 @@ pub(crate) struct TripleStore {
     triples: HashSet<Triple>,
 }
 
+struct SelectQuery {
+    variables: Vec<String>,
+    where_clause: Vec<String>,
+}
+
+impl SelectQuery {
+    fn from_query(query_vec: Vec<&str>) {
+        for word in query_vec {
+            println!("{}", word);
+        }
+    }
+}
+
 impl TripleStore {
     pub fn new() -> Self {
         Self {
@@ -30,7 +43,26 @@ impl TripleStore {
 
     pub fn query(&self, query: &str) -> Vec<&Triple> {
         let mut result = Vec::new();
-        println!("Query: {}", query);
+        let words = query.split_whitespace().collect::<Vec<_>>();
+
+        match words.clone()[0] {
+            "SELECT" => {
+                SelectQuery::from_query(words.clone());
+            }
+            _ => {
+                println!("todo");
+            }
+        }
+
+        result
+    }
+
+    fn select(&self, query: &str) -> Vec<&Triple> {
+        let mut result = Vec::new();
+        let words = query.split_whitespace().collect::<Vec<_>>();
+        for word in words {
+            println!("{}", word);
+        }
         result
     }
 }
@@ -90,7 +122,7 @@ mod tests {
         });
 
         assert_eq!(
-            store.query("SELECT ?predicate ?object WHERE { subject}"),
+            store.query("SELECT ?predicate ?object WHERE {subject}"),
             vec![&Triple {
                 subject: "subject".to_string(),
                 predicate: "predicate".to_string(),
