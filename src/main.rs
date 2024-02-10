@@ -19,6 +19,7 @@ fn main() {
             break;
         }
 
+        // split the input into words for further processing
         match input.split_whitespace().collect::<Vec<_>>().as_slice() {
             ["add", subject, predicate, object] => {
                 triple_store.add(lib::Triple {
