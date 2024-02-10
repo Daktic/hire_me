@@ -47,7 +47,8 @@ fn main() {
             }
             command @ ["query", ..] => {
                 let query = command[1..].join(" ");
-                triple_store.query(&query);
+                let result = triple_store.query(&query);
+                println!("{:?}", result);
             }
             _ => {
                 println!("Invalid command");
