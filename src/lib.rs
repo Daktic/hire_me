@@ -163,13 +163,24 @@ mod tests {
             object: "green".to_string(),
         });
 
+        store.add(Triple {
+            subject: "brown_dog".to_string(),
+            predicate: "hat_color".to_string(),
+            object: "green".to_string(),
+        });
+
         assert_eq!(
             store.query("SELECT ?predicate ?object WHERE brown_dog"),
             vec![&Triple {
                 subject: "brown_dog".to_string(),
                 predicate: "hat_color".to_string(),
                 object: "brown".to_string(),
-            }]
+            },
+             &Triple {
+                 subject: "brown_dog".to_string(),
+                 predicate: "hat_color".to_string(),
+                 object: "green".to_string(),
+             }]
         );
     }
 }
