@@ -1,10 +1,10 @@
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, PartialEq, Eq, Hash)]
-struct Triple {
-    subject: String,
-    predicate: String,
-    object: String,
+pub struct Triple {
+    pub subject: String,
+    pub predicate: String,
+    pub object: String,
 }
 
 pub(crate) struct TripleStore {
@@ -12,17 +12,17 @@ pub(crate) struct TripleStore {
 }
 
 impl TripleStore {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             triples: HashSet::new(),
         }
     }
 
-    fn add(&mut self, triple: Triple) {
+    pub fn add(&mut self, triple: Triple) {
         self.triples.insert(triple);
     }
 
-    fn get(&self, subject: &str, predicate: &str, object: &str) -> Option<&Triple> {
+    pub fn get(&self, subject: &str, predicate: &str, object: &str) -> Option<&Triple> {
         self.triples.iter().find(|&triple| {
             triple.subject == subject && triple.predicate == predicate && triple.object == object
         })
