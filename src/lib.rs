@@ -17,11 +17,35 @@ struct SelectQuery {
 }
 
 impl SelectQuery {
-    fn from_query(query_vec: Vec<&str>) {
-        for word in query_vec {
-            println!("{}", word);
+    fn from_query(query_vec: Vec<&str>) -> Self {
+        let mut variables = Vec::new();
+        let mut where_clause = Vec::new();
+        let mut in_where_clause = false;
+
+        for word in &query_vec {
+            match *word {
+                "SELECT" => {
+                    // do nothing, just indicates start of query
+                }
+                "WHERE" => {
+                    in_where_clause = true;
+                }
+                _ => {
+                    if in_where_clause {
+                        where_clause.push(word.to_string());
+                    } else if word.starts_with("?") {
+                        variables.push(word.to_string());
+                    }
+                }
+            }
+        }
+
+       SelectQuery {
+            variables,
+            where_clause,
         }
     }
+
 }
 
 impl TripleStore {
@@ -47,13 +71,26 @@ impl TripleStore {
 
         match words.clone()[0] {
             "SELECT" => {
-                SelectQuery::from_query(words.clone());
+                let query_struct = SelectQuery::from_query(words.clone());
+                self.triples.iter().for_each(|triple| {
+                    let mut matches = 0;
+                    for clause in &query_struct.where_clause {
+                        println!("{:?} = {:?}", *clause, triple.subject);
+                        if triple.subject == *clause || triple.predicate == *clause || triple.object == *clause {
+                            println!("match");
+                            matches += 1;
+                        }
+                    }
+                    if matches == query_struct.where_clause.len() {
+                        result.push(triple);
+                    }
+                });
             }
             _ => {
                 println!("todo");
             }
         }
-
+        println!("{:?}", self.triples);
         result
     }
 
@@ -122,7 +159,7 @@ mod tests {
         });
 
         assert_eq!(
-            store.query("SELECT ?predicate ?object WHERE {subject}"),
+            store.query("SELECT ?predicate ?object WHERE subject"),
             vec![&Triple {
                 subject: "subject".to_string(),
                 predicate: "predicate".to_string(),
