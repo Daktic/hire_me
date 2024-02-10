@@ -3,9 +3,9 @@ This project should hopefully highlight my ability to work in Rust
 and turn around a project in an unfamiliar time in a relatively short amount of time.
 
 ## Goals
- [ ] Set up mock triple-store DB to house RDF data
+ [x] Set up mock triple-store DB to house RDF data
  
- [ ] Provide utility to upload RDF data
+ [x] Provide utility to upload RDF data
  
  [ ] provide CLI for making SPARQL commands
  
