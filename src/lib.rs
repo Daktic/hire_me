@@ -77,7 +77,6 @@ impl TripleStore {
                     for clause in &query_struct.where_clause {
                         println!("{:?} = {:?}", *clause, triple.subject);
                         if triple.subject == *clause || triple.predicate == *clause || triple.object == *clause {
-                            println!("match");
                             matches += 1;
                         }
                     }
@@ -153,17 +152,23 @@ mod tests {
     fn test_query() {
         let mut store = TripleStore::new();
         store.add(Triple {
-            subject: "subject".to_string(),
-            predicate: "predicate".to_string(),
-            object: "object".to_string(),
+            subject: "brown_dog".to_string(),
+            predicate: "hat_color".to_string(),
+            object: "brown".to_string(),
+        });
+
+        store.add(Triple {
+            subject: "gray_dog".to_string(),
+            predicate: "hat_color".to_string(),
+            object: "green".to_string(),
         });
 
         assert_eq!(
-            store.query("SELECT ?predicate ?object WHERE subject"),
+            store.query("SELECT ?predicate ?object WHERE brown_dog"),
             vec![&Triple {
-                subject: "subject".to_string(),
-                predicate: "predicate".to_string(),
-                object: "object".to_string(),
+                subject: "brown_dog".to_string(),
+                predicate: "hat_color".to_string(),
+                object: "brown".to_string(),
             }]
         );
     }
