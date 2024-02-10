@@ -1,6 +1,6 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashSet};
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Ord, PartialOrd,)]
 pub struct Triple {
     pub subject: String,
     pub predicate: String,
@@ -77,7 +77,6 @@ impl TripleStore {
                 self.triples.iter().for_each(|triple| {
                     let mut matches = 0;
                     for clause in &query_struct.where_clause {
-                        println!("{:?} = {:?}", *clause, triple.subject);
                         if triple.subject == *clause || triple.predicate == *clause || triple.object == *clause {
                             matches += 1;
                         }
@@ -91,7 +90,6 @@ impl TripleStore {
                 println!("todo");
             }
         }
-        println!("{:?}", self.triples);
         result
     }
 
@@ -156,13 +154,7 @@ mod tests {
         store.add(Triple {
             subject: "brown_dog".to_string(),
             predicate: "hat_color".to_string(),
-            object: "brown".to_string(),
-        });
-
-        store.add(Triple {
-            subject: "gray_dog".to_string(),
-            predicate: "hat_color".to_string(),
-            object: "green".to_string(),
+            object: "red".to_string(),
         });
 
         store.add(Triple {
@@ -171,32 +163,32 @@ mod tests {
             object: "green".to_string(),
         });
 
-        assert_eq!(
-            store.query("SELECT ?predicate ?object WHERE { brown_dog }"),
-            vec![&Triple {
-                subject: "brown_dog".to_string(),
-                predicate: "hat_color".to_string(),
-                object: "brown".to_string(),
-            },
-             &Triple {
-                 subject: "brown_dog".to_string(),
-                 predicate: "hat_color".to_string(),
-                 object: "green".to_string(),
-             }]
-        );
+        store.add(Triple {
+            subject: "green_dog".to_string(),
+            predicate: "hat_color".to_string(),
+            object: "brown".to_string(),
+        });
 
-        assert_eq!(
-            store.query("SELECT ?predicate ?object WHERE { brown_dog ?hair_color  }"),
-            vec![&Triple {
-                subject: "brown_dog".to_string(),
-                predicate: "hat_color".to_string(),
-                object: "brown".to_string(),
-            },
-                 &Triple {
-                     subject: "brown_dog".to_string(),
-                     predicate: "hat_color".to_string(),
-                     object: "green".to_string(),
-                 }]
-        );
+        // Expected
+
+        let brown_dog_red_hat = Triple {
+            subject: "brown_dog".to_string(),
+            predicate: "hat_color".to_string(),
+            object: "red".to_string(),
+        };
+        let brown_dog_green_hat = Triple {
+            subject: "brown".to_string(),
+            predicate: "hat_color".to_string(),
+            object: "green".to_string(),
+        };
+
+        let query_l = store.query("SELECT ?predicate ?object WHERE { brown_dog }").sort();
+        let expected_single = vec![&brown_dog_red_hat, &brown_dog_green_hat,].sort();
+        
+        assert_eq!(query_l, expected_single);
+
+        let query_m = store.query("SELECT ?predicate ?object WHERE { brown_dog ?hat_color red }");
+        let expected_multiple  = vec![&brown_dog_red_hat,];
+        assert_eq!(query_m, expected_multiple);
     }
 }
