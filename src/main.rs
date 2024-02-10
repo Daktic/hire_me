@@ -19,6 +19,24 @@ fn main() {
             break;
         }
 
-        // TODO: process the input and perform actions on the triple_store
+        match input.split_whitespace().collect::<Vec<_>>().as_slice() {
+            ["add", subject, predicate, object] => {
+                triple_store.add(lib::Triple {
+                    subject: subject.to_string(),
+                    predicate: predicate.to_string(),
+                    object: object.to_string(),
+                });
+            }
+            ["get", subject, predicate, object] => {
+                if let Some(triple) = triple_store.get(subject, predicate, object) {
+                    println!("{:?}", triple);
+                } else {
+                    println!("Not found");
+                }
+            }
+            _ => {
+                println!("Invalid command");
+            }
+        }
     }
 }
