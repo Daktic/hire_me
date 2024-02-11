@@ -1,4 +1,5 @@
 use std::collections::{HashSet};
+use serde::{Serialize, Deserialize};
 
 #[derive(Debug, PartialEq, Eq, Hash, Ord, PartialOrd,)]
 pub struct Triple {
@@ -103,6 +104,67 @@ impl TripleStore {
     }
 }
 
+// I will put the lexing and parsing code here
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum TokenKind {
+    Select,
+    Where,
+    OpenBrace,
+    CloseBrace,
+    Variable(String),
+    Dot,
+    Integer(usize),
+    Decimal(f64),
+}
+
+// Helper functions to convert from other types to TokenKind
+impl From<usize> for TokenKind {
+    fn from(other: usize) -> TokenKind {
+        TokenKind::Integer(other)
+    }
+}
+
+impl From<f64> for TokenKind {
+    fn from(other: f64) -> TokenKind {
+        TokenKind::Decimal(other)
+    }
+}
+
+
+// Tokenizing
+pub fn tokenize(input: &str) -> Vec<TokenKind> {
+    let mut tokens = Vec::new();
+    let mut word = String::new();
+    for c in input.chars() {
+        match c {
+            ' ' => {
+                if !word.is_empty() {
+                    tokens.push(match word.parse::<usize>() {
+                        Ok(num) => TokenKind::Integer(num),
+                        Err(_) => match word.parse::<f64>() {
+                            Ok(num) => TokenKind::Decimal(num),
+                            Err(_) => match word.as_str() {
+                                "SELECT" => TokenKind::Select,
+                                "WHERE" => TokenKind::Where,
+                                "{" => TokenKind::OpenBrace,
+                                "}" => TokenKind::CloseBrace,
+                                _ => TokenKind::Variable(word.clone()),
+                            },
+                        },
+                    });
+                    word.clear();
+                }
+            }
+            _ => {
+                word.push(c);
+            }
+        }
+    }
+    tokens
+}
+
+
+
 
 #[cfg(test)]
 mod tests {
@@ -190,5 +252,22 @@ mod tests {
         let query_m = store.query("SELECT ?predicate ?object WHERE { brown_dog ?hat_color red }");
         let expected_multiple  = vec![&brown_dog_red_hat,];
         assert_eq!(query_m, expected_multiple);
+    }
+
+    // Tokenizing tests
+    #[test]
+    fn test_tokenize() {
+        let input = "SELECT ?predicate ?object WHERE { brown_dog ?hat_color red }";
+        let expected = vec![
+            TokenKind::Select,
+            TokenKind::Variable("?predicate".to_string()),
+            TokenKind::Variable("?object".to_string()),
+            TokenKind::Where,
+            TokenKind::OpenBrace,
+            TokenKind::Variable("brown_dog".to_string()),
+            TokenKind::Variable("?hat_color".to_string()),
+            TokenKind::Variable("red".to_string()),
+        ];
+        assert_eq!(tokenize(input), expected);
     }
 }
