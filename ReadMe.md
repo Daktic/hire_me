@@ -30,3 +30,8 @@ The User will interact with the Binary, which will use the lib to interact with 
 
 ## Setup and Environment
 TODO
+
+## Final Thoughts
+I am happy with the progress I made on this project.
+From here, I would like to build out a query language and make the 
+Query CLI function actually parse out the query and send it to the triple-store.
