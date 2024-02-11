@@ -163,7 +163,64 @@ pub fn tokenize(input: &str) -> Vec<TokenKind> {
     tokens
 }
 
+// ParseTree stuff
+#[derive(PartialEq, Debug)]
+pub enum ParseNode {
+    Select(Vec<String>),
+    Where(Vec<String>),
+    Variable(String),
+}
 
+pub fn parse(tokens: Vec<TokenKind>) -> Vec<ParseNode> {
+    let mut nodes:Vec<ParseNode> = Vec::new();
+    let mut current_node:Option<ParseNode>  = None;
+
+    for token in tokens {
+        match token {
+            TokenKind::Select => {
+                if let Some(node) = current_node {
+                    nodes.push(node);
+                }
+                current_node = Some(ParseNode::Select(Vec::new()));
+            }
+            TokenKind::Where => {
+                if let Some(node) = current_node {
+                    nodes.push(node);
+                }
+                current_node = Some(ParseNode::Where(Vec::new()));
+            }
+            TokenKind::Variable(var_name) => {
+                match current_node {
+                    Some(ParseNode::Select(ref mut vars)) => {
+                        vars.push(var_name);
+                    }
+                    Some(ParseNode::Where(ref mut vars)) => {
+                        vars.push(var_name);
+                    }
+                    _ => {eprintln!("IDK")}
+                }
+            }
+            // I am not sure what to do with the braces yet. Right now they are just ignored.
+            // TokenKind::OpenBrace => {
+            //     if let Some(node) = current_node {
+            //         nodes.push(node);
+            //     }
+            //     current_node = None;
+            // }
+            // TokenKind::CloseBrace => {
+            //     if let Some(node) = current_node {
+            //         nodes.push(node);
+            //     }
+            //     current_node = None;
+            // }
+            _ => {eprintln!("Invalid token: {:?}", token)}
+        }
+    }
+    if let Some(node) = current_node {
+        nodes.push(node);
+    }
+    nodes
+}
 
 
 #[cfg(test)]
@@ -269,5 +326,25 @@ mod tests {
             TokenKind::Variable("red".to_string()),
         ];
         assert_eq!(tokenize(input), expected);
+    }
+
+    // Parsing tests
+    #[test]
+    fn test_parse() {
+        let input = vec![
+            TokenKind::Select,
+            TokenKind::Variable("?predicate".to_string()),
+            TokenKind::Variable("?object".to_string()),
+            TokenKind::Where,
+            TokenKind::OpenBrace,
+            TokenKind::Variable("brown_dog".to_string()),
+            TokenKind::Variable("?hat_color".to_string()),
+            TokenKind::Variable("red".to_string()),
+        ];
+        let expected = vec![
+            ParseNode::Select(vec!["?predicate".to_string(), "?object".to_string()]),
+            ParseNode::Where(vec!["brown_dog".to_string(), "?hat_color".to_string(), "red".to_string()]),
+        ];
+        assert_eq!(parse(input), expected);
     }
 }
